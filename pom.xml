@@ -17,6 +17,20 @@
 		<java.version>21</java.version>
 		<lombok.version>1.18.30</lombok.version>
 	</properties>
+
+	<!-- Ensure Spring Boot managed dependency versions are available to Maven
+	     (helps IDEs or tooling that don't fully honor the parent POM) -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>3.3.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
