@@ -268,7 +268,7 @@ class DTOAndExceptionTests {
 
     @Test
     void testBalanceResponseConstructor() {
-        BalanceResponse response = new BalanceResponse("acc-123", 1500.0);
+        BalanceResponse response = new BalanceResponse("acc-123", null, null, 1500.0, null);
 
         assertEquals("acc-123", response.getAccountId());
         assertEquals(1500.0, response.getBalance());
@@ -295,7 +295,7 @@ class DTOAndExceptionTests {
 
     @Test
     void testBalanceResponseWithZeroBalance() {
-        BalanceResponse response = new BalanceResponse("zero-balance-acc", 0.0);
+        BalanceResponse response = new BalanceResponse("zero-balance-acc", null, null, 0.0, null);
 
         assertEquals("zero-balance-acc", response.getAccountId());
         assertEquals(0.0, response.getBalance());
@@ -303,7 +303,7 @@ class DTOAndExceptionTests {
 
     @Test
     void testBalanceResponseWithLargeBalance() {
-        BalanceResponse response = new BalanceResponse("rich-acc", 99_999_999.99);
+        BalanceResponse response = new BalanceResponse("rich-acc", null, null, 99_999_999.99, null);
 
         assertEquals(99_999_999.99, response.getBalance());
     }
@@ -312,7 +312,7 @@ class DTOAndExceptionTests {
     void testBalanceResponseWithNegativeBalance() {
         // Note: Negative balance should not occur in normal operation,
         // but test demonstrates that DTO accepts any value
-        BalanceResponse response = new BalanceResponse("acc", -100.0);
+        BalanceResponse response = new BalanceResponse("acc", null, null, -100.0, null);
 
         assertEquals(-100.0, response.getBalance());
     }

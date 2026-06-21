@@ -1,117 +1,137 @@
 package com.bankapp.banking.service;
 
+import com.bankapp.banking.entity.Account;
 import com.bankapp.banking.exception.AccountNotFoundException;
 import com.bankapp.banking.exception.InsufficientFundsException;
-import com.bankapp.banking.model.Account;
+import com.bankapp.banking.repository.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class AccountService {
 
-    private final Map<String, Account> accounts = new HashMap<>();
+    private final AccountRepository accountRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final Random random = new Random();
 
-    /**
-     * Create a new account with initial balance
-     */
-    public Account createAccount(String name, Double balance) {
-        String accountId = UUID.randomUUID().toString().substring(0, 8);
-        Account account = new Account(accountId, name, balance);
-        accounts.put(accountId, account);
-        return account;
+    @Autowired
+    public AccountService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    /**
-     * Get account by ID
-     */
-    public Account getAccount(String accountId) {
-        Account account = accounts.get(accountId);
-        if (account == null) {
-            throw new AccountNotFoundException("Account not found: " + accountId);
-        }
-        return account;
+    public Account createAccount(String name, String email, String phoneNumber, String rawPin, BigDecimal balance, String currency) {
+        String accountNumber = generateUniqueAccountNumber();
+        String hashedPin = passwordEncoder.encode(rawPin);
+        Account account = new Account(accountNumber, name, email, phoneNumber, hashedPin, balance, "CONSUMER", currency);
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUpdatedAt(LocalDateTime.now());
+        return accountRepository.save(account);
     }
 
-    /**
-     * Get current balance for an account
-     */
-    public Double getBalance(String accountId) {
-        return getAccount(accountId).getBalance();
+    public Account getAccount(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+            .orElseThrow(() -> new AccountNotFoundException("Account not found: " + accountNumber));
     }
 
-    /**
-     * Deposit money into an account
-     */
-    public Account deposit(String accountId, Double amount) {
+    public Optional<Account> findByEmail(String email) {
+        return accountRepository.findByEmail(email);
+    }
+
+    public Optional<Account> findByPhoneNumber(String phoneNumber) {
+        return accountRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    public boolean verifyPin(Account account, String rawPin) {
+        return passwordEncoder.matches(rawPin, account.getPin());
+    }
+
+    public Double getBalance(String accountNumber) {
+        return getAccount(accountNumber).getBalance().doubleValue();
+    }
+
+    public Account deposit(String accountNumber, Double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Deposit amount must be positive");
         }
-        
-        Account account = getAccount(accountId);
+
+        Account account = getAccount(accountNumber);
         synchronized (account) {
-            account.setBalance(account.getBalance() + amount);
+            account.setBalance(account.getBalance().add(BigDecimal.valueOf(amount)));
+            account.setUpdatedAt(LocalDateTime.now());
         }
-        return account;
+        return accountRepository.save(account);
     }
 
-    /**
-     * Withdraw money from an account
-     */
-    public Account withdraw(String accountId, Double amount) {
+    public Account withdraw(String accountNumber, Double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Withdrawal amount must be positive");
         }
-        
-        Account account = getAccount(accountId);
+
+        Account account = getAccount(accountNumber);
         synchronized (account) {
-            if (account.getBalance() < amount) {
+            if (account.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0) {
                 throw new InsufficientFundsException(
                     "Insufficient funds. Available: " + account.getBalance() + ", Requested: " + amount
                 );
             }
-            account.setBalance(account.getBalance() - amount);
+            account.setBalance(account.getBalance().subtract(BigDecimal.valueOf(amount)));
+            account.setUpdatedAt(LocalDateTime.now());
         }
-        return account;
+        return accountRepository.save(account);
     }
 
-    /**
-     * Transfer money from one account to another
-     */
-    public void transfer(String fromAccountId, String toAccountId, Double amount) {
+    public void transfer(String fromAccountNumber, String toAccountNumber, Double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Transfer amount must be positive");
         }
-        
-        if (fromAccountId.equals(toAccountId)) {
+
+        if (fromAccountNumber.equals(toAccountNumber)) {
             throw new IllegalArgumentException("Cannot transfer to the same account");
         }
 
-        Account fromAccount = getAccount(fromAccountId);
-        Account toAccount = getAccount(toAccountId);
+        Account fromAccount = getAccount(fromAccountNumber);
+        Account toAccount = getAccount(toAccountNumber);
 
-        // Synchronize on both accounts to avoid race conditions
         synchronized (fromAccount) {
             synchronized (toAccount) {
-                if (fromAccount.getBalance() < amount) {
+                if (fromAccount.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0) {
                     throw new InsufficientFundsException(
-                        "Insufficient funds in source account. Available: " + fromAccount.getBalance() + 
-                        ", Requested: " + amount
+                        "Insufficient funds in source account. Available: " + fromAccount.getBalance() + ", Requested: " + amount
                     );
                 }
-                fromAccount.setBalance(fromAccount.getBalance() - amount);
-                toAccount.setBalance(toAccount.getBalance() + amount);
+                fromAccount.setBalance(fromAccount.getBalance().subtract(BigDecimal.valueOf(amount)));
+                fromAccount.setUpdatedAt(LocalDateTime.now());
+
+                toAccount.setBalance(toAccount.getBalance().add(BigDecimal.valueOf(amount)));
+                toAccount.setUpdatedAt(LocalDateTime.now());
             }
         }
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
     }
 
-    /**
-     * Get all accounts (for admin purposes)
-     */
     public List<Account> getAllAccounts() {
-        return List.copyOf(accounts.values());
+        return accountRepository.findAll();
+    }
+
+    private String generateUniqueAccountNumber() {
+        String accountNumber;
+        do {
+            accountNumber = "ACC" + (100 + random.nextInt(900));
+        } while (accountRepository.findByAccountNumber(accountNumber).isPresent());
+        return accountNumber;
+    }
+
+    public Account createAccount(String string, double d) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createAccount'");
     }
 }

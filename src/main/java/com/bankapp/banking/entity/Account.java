@@ -1,5 +1,7 @@
 package com.bankapp.banking.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,29 +14,52 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "account")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Account {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private String accountNumber;
-	private String accountHolderName;
-	private BigDecimal balance;
-	private String accountType;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
+    @Column(name = "account_number", unique = true, nullable = false)
+    private String accountNumber;
 
-	public Account(String accountNumber, String accountHolderName, BigDecimal balance, String accountType) {
-		this.accountNumber = accountNumber;
-		this.accountHolderName = accountHolderName;
-		this.balance = balance;
-		this.accountType = accountType;
-		this.createdAt = LocalDateTime.now();
-		this.updatedAt = LocalDateTime.now();
-	}
+    @Column(name = "name", nullable = false)
+    private String accountHolderName;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
+
+    @JsonIgnore
+    private String pin;
+
+    private BigDecimal balance;
+    private String accountType;
+    private String currency;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    public Account(String accountNumber, String accountHolderName, String email, String phoneNumber,
+                   String pin, BigDecimal balance, String accountType, String currency) {
+        this.accountNumber = accountNumber;
+        this.accountHolderName = accountHolderName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.pin = pin;
+        this.balance = balance;
+        this.accountType = accountType;
+        this.currency = currency;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

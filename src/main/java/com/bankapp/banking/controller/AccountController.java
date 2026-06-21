@@ -1,13 +1,16 @@
 package com.bankapp.banking.controller;
 
+import com.bankapp.banking.dto.AccountResponse;
 import com.bankapp.banking.dto.BalanceResponse;
+import com.bankapp.banking.dto.LoginRequest;
+import com.bankapp.banking.dto.SignupRequest;
 import com.bankapp.banking.dto.TransactionRequest;
 import com.bankapp.banking.dto.TransactionResponse;
 import com.bankapp.banking.dto.TransferRequest;
 import com.bankapp.banking.dto.TransferResponse;
+import com.bankapp.banking.entity.Account;
 import com.bankapp.banking.exception.AccountNotFoundException;
 import com.bankapp.banking.exception.InsufficientFundsException;
-import com.bankapp.banking.model.Account;
 import com.bankapp.banking.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,10 +33,58 @@ public class AccountController {
     /**
      * Create a new bank account
      */
-    @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestParam String name, @RequestParam Double balance) {
-        Account account = accountService.createAccount(name, balance);
-        return ResponseEntity.status(HttpStatus.CREATED).body(account);
+    @PostMapping("/signup")
+    public ResponseEntity<AccountResponse> signup(@RequestBody SignupRequest request) {
+        if (request.getName() == null || request.getEmail() == null || request.getPhoneNumber() == null
+            || request.getPin() == null || request.getCurrency() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        Account account = accountService.createAccount(
+            request.getName(),
+            request.getEmail(),
+            request.getPhoneNumber(),
+            request.getPin(),
+            java.math.BigDecimal.ZERO,
+            request.getCurrency().toUpperCase()
+        );
+
+        AccountResponse response = new AccountResponse(
+            account.getId(),
+            account.getAccountNumber(),
+            account.getAccountHolderName(),
+            account.getEmail(),
+            account.getPhoneNumber(),
+            account.getBalance().doubleValue(),
+            account.getCurrency()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        if (request.getEmailOrPhone() == null || request.getPin() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email/phone and PIN are required.");
+        }
+
+        Account account = accountService.findByEmail(request.getEmailOrPhone())
+            .or(() -> accountService.findByPhoneNumber(request.getEmailOrPhone()))
+            .orElse(null);
+
+        if (account == null || !accountService.verifyPin(account, request.getPin())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
+        }
+
+        AccountResponse response = new AccountResponse(
+            account.getId(),
+            account.getAccountNumber(),
+            account.getAccountHolderName(),
+            account.getEmail(),
+            account.getPhoneNumber(),
+            account.getBalance().doubleValue(),
+            account.getCurrency()
+        );
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -43,13 +94,7 @@ public class AccountController {
     @PostMapping("/deposit")
     public ResponseEntity<?> deposit(@RequestBody TransactionRequest request) {
         try {
-            Account account = accountService.deposit(request.getAccountId(), request.getAmount());
             TransactionResponse response = new TransactionResponse(
-                true,
-                "Deposit successful",
-                request.getAccountId(),
-                account.getBalance(),
-                "DEPOSIT"
             );
             return ResponseEntity.ok(response);
         } catch (AccountNotFoundException e) {
@@ -68,18 +113,6 @@ public class AccountController {
     @PostMapping("/withdraw")
     public ResponseEntity<?> withdraw(@RequestBody TransactionRequest request) {
         try {
-            Account account = accountService.withdraw(request.getAccountId(), request.getAmount());
-            TransactionResponse response = new TransactionResponse(
-                true,
-                "Withdrawal successful",
-                request.getAccountId(),
-                account.getBalance(),
-                "WITHDRAWAL"
-            );
-            return ResponseEntity.ok(response);
-        } catch (AccountNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new TransactionResponse(false, e.getMessage(), null, null, "WITHDRAWAL"));
         } catch (InsufficientFundsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new TransactionResponse(false, e.getMessage(), null, null, "WITHDRAWAL"));
@@ -87,6 +120,7 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new TransactionResponse(false, e.getMessage(), null, null, "WITHDRAWAL"));
         }
+        return null;
     }
 
     /**
@@ -98,17 +132,7 @@ public class AccountController {
         try {
             accountService.transfer(request.getFromAccountId(), request.getToAccountId(), request.getAmount());
             
-            Account fromAccount = accountService.getAccount(request.getFromAccountId());
-            Account toAccount = accountService.getAccount(request.getToAccountId());
-            
             TransferResponse response = new TransferResponse(
-                true,
-                "Transfer successful",
-                request.getFromAccountId(),
-                request.getToAccountId(),
-                request.getAmount(),
-                fromAccount.getBalance(),
-                toAccount.getBalance()
             );
             return ResponseEntity.ok(response);
         } catch (AccountNotFoundException e) {
@@ -130,12 +154,18 @@ public class AccountController {
     @GetMapping("/{id}/balance")
     public ResponseEntity<?> getBalance(@PathVariable String id) {
         try {
-            Double balance = accountService.getBalance(id);
-            BalanceResponse response = new BalanceResponse(id, balance);
+            Account account = accountService.getAccount(id);
+            BalanceResponse response = new BalanceResponse(
+                account.getId(),
+                account.getAccountNumber(),
+                account.getAccountHolderName(),
+                account.getBalance().doubleValue(),
+                account.getCurrency() != null ? account.getCurrency() : "KES"
+            );
             return ResponseEntity.ok(response);
         } catch (AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new BalanceResponse(id, null));
+                .body(new BalanceResponse(id, null, null, null, null));
         }
     }
 

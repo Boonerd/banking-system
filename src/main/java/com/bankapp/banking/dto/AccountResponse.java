@@ -7,14 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalanceResponse {
-    public BalanceResponse(Long id, String accountNumber2, String accountHolderName2, double doubleValue,
-            Object object) {
-        //TODO Auto-generated constructor stub
-    }
-    private String accountId;
+public class AccountResponse {
+    private Long id;
     private String accountNumber;
     private String accountHolderName;
+    private String email;
+    private String phoneNumber;
     private Double balance;
     private String currency;
 }

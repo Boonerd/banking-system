@@ -1,0 +1,10 @@
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC101', 'Alice Njeri (Tenant)', 45000.0, 'KES');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC102', 'Bob Kamau (Landlord)', 120000.0, 'KES');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC103', 'Charlie Smith (Expat)', 3200.0, 'USD');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC104', 'David Omondi', 15000.0, 'KES');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC105', 'Emma Johnson', 2500.0, 'EUR');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC106', 'Fatma Ali', 78000.0, 'KES');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC107', 'Grace Mwangi', 9500.0, 'KES');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC108', 'Henry Cleaners LLC', 350000.0, 'KES');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC109', 'Ian Wright', 1200.0, 'USD');
+INSERT INTO account (id, name, balance, currency) VALUES ('ACC110', 'Julia Kwamboka', 61000.0, 'KES');

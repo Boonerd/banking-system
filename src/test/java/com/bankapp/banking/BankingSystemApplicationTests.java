@@ -1,7 +1,7 @@
 package com.bankapp.banking;
 
+import com.bankapp.banking.entity.Account;
 import com.bankapp.banking.exception.InsufficientFundsException;
-import com.bankapp.banking.model.Account;
 import com.bankapp.banking.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,10 +22,10 @@ class BankingSystemApplicationTests {
 	@BeforeEach
 	void setUp() {
 		// Create test accounts
-		Account acc1 = accountService.createAccount("Alice Johnson", 1000.0);
-		Account acc2 = accountService.createAccount("Bob Smith", 500.0);
-		account1Id = acc1.getId();
-		account2Id = acc2.getId();
+		Account acc1 = accountService.createAccount("Alice Johnson", "alice@test.com", "0711000000", "1234", java.math.BigDecimal.valueOf(1000.0), "KES");
+		Account acc2 = accountService.createAccount("Bob Smith", "bob@test.com", "0711000001", "1234", java.math.BigDecimal.valueOf(500.0), "KES");
+		account1Id = acc1.getAccountNumber();
+		account2Id = acc2.getAccountNumber();
 	}
 
 	@Test
@@ -36,7 +36,6 @@ class BankingSystemApplicationTests {
 	// Test 1: Deposit Operation
 	@Test
 	void testDeposit() {
-		Double initialBalance = accountService.getBalance(account1Id);
 		Account updatedAccount = accountService.deposit(account1Id, 200.0);
 
 		assertEquals(1200.0, updatedAccount.getBalance());
