@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const API_BASE = '/api/accounts';
 
@@ -10,6 +11,7 @@ function SignupView({ setCurrentView, setMessage, setError, clearMessages }) {
   const [signupPin, setSignupPin] = useState('');
   const [signupCurrency, setSignupCurrency] = useState('KES');
   const [loading, setLoading] = useState(false);
+  const [showPin, setShowPin] = useState(false);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ function SignupView({ setCurrentView, setMessage, setError, clearMessages }) {
     setLoading(true);
 
     try {
-      await axios.post(`${API_BASE}/register`, {
+      await axios.post(`${API_BASE}/signup`, {
         name: signupName,
         email: signupEmail,
         phoneNumber: signupPhone,
@@ -63,7 +65,7 @@ function SignupView({ setCurrentView, setMessage, setError, clearMessages }) {
               type="email" 
               value={signupEmail} 
               onChange={(e) => setSignupEmail(e.target.value)} 
-              placeholder="john@mail.com" 
+              placeholder="Njeri67@mail.com" 
               required 
             />
           </div>
@@ -81,14 +83,19 @@ function SignupView({ setCurrentView, setMessage, setError, clearMessages }) {
 
           <div className="form-group">
             <label>Create Secure 4-Digit PIN</label>
+            <div className="pin-input-wrapper">
             <input
-              type="password"
+              type={showPin ? 'text' : 'password'}
               value={signupPin}
               onChange={(e) => setSignupPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
               placeholder="••••"
               maxLength={4}
               required
             />
+            <button type="button" className="eye-toggle" onClick={() => setShowPin(!showPin)}>
+              {showPin ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+            </button>
+            </div>
           </div>
 
           <div className="form-group">

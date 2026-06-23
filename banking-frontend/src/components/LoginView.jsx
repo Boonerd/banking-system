@@ -78,7 +78,7 @@ function LoginView({ setLoggedInUser, setCurrentView, setMessage, setError, clea
 
         <div className="action-links">
           <button className="btn btn-secondary" onClick={() => { setCurrentView('SIGNUP'); clearMessages(); }}>
-            Open an Account
+            Create an Account
           </button>
         </div>
       </section>
