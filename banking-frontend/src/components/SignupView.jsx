@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { FiUserPlus } from 'react-icons/fi';
 
 const API_BASE = '/api/accounts';
 
-function SignupView({ setLoggedInUser, setCurrentView, setMessage, setError, clearMessages }) {
+function SignupView({ setCurrentView, setMessage, setError, clearMessages }) {
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPhone, setSignupPhone] = useState('');
@@ -14,63 +13,73 @@ function SignupView({ setLoggedInUser, setCurrentView, setMessage, setError, cle
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    if (!signupName || !signupEmail || !signupPhone || !signupPin) {
-      setError('All fields are required.');
-      return;
-    }
-    if (signupPin.length !== 4) {
-      setError('PIN must be exactly 4 digits.');
-      return;
-    }
     clearMessages();
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_BASE}/signup`, {
+      await axios.post(`${API_BASE}/register`, {
         name: signupName,
         email: signupEmail,
         phoneNumber: signupPhone,
         pin: signupPin,
         currency: signupCurrency,
+        accountType: 'Savings' // Standard default fallback matching your entity
       });
-      setLoggedInUser(response.data);
-      setCurrentView('DASHBOARD');
-      setMessage('Account created successfully. Welcome!');
+      setCurrentView('LOGIN');
+      setMessage('Registration successful! Please sign in.');
+      setCurrentView('LOGIN');
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data || 'Signup failed.');
+      const errorMsg = err.response?.data?.message || err.response?.data || err.message || 'Authentication failed.';
+      setError(typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-gateway animate-fade-in">
-      <section className="login-card glass-card">
-        <div className="section-heading compact">
-          <span className="section-icon secondary"><FiUserPlus /></span>
-          <div>
-            <h2>Digital Registration</h2>
-            <p>Create a secure digital checking ledger profile.</p>
-          </div>
-        </div>
+    <div className="mobile-frame animate-fade-in">
+      <div className="brand-header">
+        <div className="brand-logo">H</div>
+        <p>Create your account to get started</p>
+      </div>
 
+      <section className="login-sheet">
         <form className="login-form" onSubmit={handleSignup}>
-          <div className="field-group">
+          
+          <div className="form-group">
             <label>Full Legal Name</label>
-            <input type="text" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="John Doe" required />
+            <input 
+              type="text" 
+              value={signupName} 
+              onChange={(e) => setSignupName(e.target.value)} 
+              placeholder="Jane Njeri" 
+              required 
+            />
           </div>
 
-          <div className="field-group">
+          <div className="form-group">
             <label>Email Address</label>
-            <input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="john@mail.com" required />
+            <input 
+              type="email" 
+              value={signupEmail} 
+              onChange={(e) => setSignupEmail(e.target.value)} 
+              placeholder="john@mail.com" 
+              required 
+            />
           </div>
 
-          <div className="field-group">
+          <div className="form-group">
             <label>Mobile Phone Number</label>
-            <input type="tel" value={signupPhone} onChange={(e) => setSignupPhone(e.target.value)} placeholder="0712345678" required />
+            <input 
+              type="tel" 
+              value={signupPhone} 
+              onChange={(e) => setSignupPhone(e.target.value.replace(/\D/g, ''))} 
+              placeholder="0712345678" 
+              required 
+            />
           </div>
 
-          <div className="field-group">
+          <div className="form-group">
             <label>Create Secure 4-Digit PIN</label>
             <input
               type="password"
@@ -82,7 +91,7 @@ function SignupView({ setLoggedInUser, setCurrentView, setMessage, setError, cle
             />
           </div>
 
-          <div className="field-group">
+          <div className="form-group">
             <label>Settlement Currency</label>
             <select value={signupCurrency} onChange={(e) => setSignupCurrency(e.target.value)}>
               <option value="KES">KES (Kenyan Shilling)</option>
@@ -91,13 +100,15 @@ function SignupView({ setLoggedInUser, setCurrentView, setMessage, setError, cle
             </select>
           </div>
 
-          <button type="submit" className="button primary" disabled={loading}>
-            {loading ? 'Processing Provisioning...' : 'Provision New Account'}
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? <span className="btn-spinner"></span> : 'Provision New Account'}
           </button>
         </form>
 
-        <div className="auth-link">
-          <p>Already have an active account? <button className="link-button" onClick={() => { setCurrentView('LOGIN'); clearMessages(); }}>Sign in here</button></p>
+        <div className="action-links">
+          <button className="btn btn-secondary" onClick={() => { setCurrentView('LOGIN'); clearMessages(); }}>
+            Back to Sign In
+          </button>
         </div>
       </section>
     </div>

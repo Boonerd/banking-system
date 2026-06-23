@@ -1,10 +1,14 @@
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC101', 'Alice Njeri (Tenant)', 45000.0, 'KES');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC102', 'Bob Kamau (Landlord)', 120000.0, 'KES');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC103', 'Charlie Smith (Expat)', 3200.0, 'USD');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC104', 'David Omondi', 15000.0, 'KES');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC105', 'Emma Johnson', 2500.0, 'EUR');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC106', 'Fatma Ali', 78000.0, 'KES');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC107', 'Grace Mwangi', 9500.0, 'KES');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC108', 'Henry Cleaners LLC', 350000.0, 'KES');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC109', 'Ian Wright', 1200.0, 'USD');
-INSERT INTO account (id, name, balance, currency) VALUES ('ACC110', 'Julia Kwamboka', 61000.0, 'KES');
+INSERT INTO account (account_number, name, email, phone_number, pin, balance, account_type, currency, created_at, updated_at) 
+VALUES ('ACC101', 'Alice Njeri (Tenant)', 'NjeriA@gmail.com', '0712345678', '8241', 45000.0, 'Savings', 'KES', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO account (account_number, name, email, phone_number, pin, balance, account_type, currency, created_at, updated_at) 
+VALUES ('ACC102', 'Bob Kamau (Landlord)', 'bob23@gmail.com', '0722112233', '4916', 120000.0, 'Checking', 'KES', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO account (account_number, name, email, phone_number, pin, balance, account_type, currency, created_at, updated_at) 
+VALUES ('ACC103', 'Charlie Smith (Expat)', 'charliek@gmail.com', '0733445566', '7382', 3200.0, 'Savings', 'USD', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO account (account_number, name, email, phone_number, pin, balance, account_type, currency, created_at, updated_at) 
+VALUES ('ACC104', 'David Omondi', 'david63@gmail.com', '0744556677', '2954', 15000.0, 'Savings', 'KES', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO account (account_number, name, email, phone_number, pin, balance, account_type, currency, created_at, updated_at) 
+VALUES ('ACC110', 'Julia Kwamboka', 'julia67@gmail.com', '0755667788', '6103', 61000.0, 'Checking', 'KES', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

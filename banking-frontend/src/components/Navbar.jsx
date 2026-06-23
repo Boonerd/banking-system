@@ -1,8 +1,6 @@
-import { FiCreditCard, FiSun, FiMoon, FiUsers, FiLogOut } from 'react-icons/fi';
+import { FiUsers, FiLogOut, FiSettings } from 'react-icons/fi';
 
-const BRAND_NAME = 'Horizon Bank';
-
-function Navbar({ darkMode, setDarkMode, loggedInUser, setLoggedInUser, setCurrentView }) {
+function Navbar({ loggedInUser, setLoggedInUser, setCurrentView, onOpenSettings }) {
   const handleLogout = () => {
     setLoggedInUser(null);
     setCurrentView('LOGIN');
@@ -10,22 +8,13 @@ function Navbar({ darkMode, setDarkMode, loggedInUser, setLoggedInUser, setCurre
 
   return (
     <header className="topbar glass-card">
-      <div className="brand-block">
-        <div className="brand-badge">
-          <FiCreditCard size={22} />
-        </div>
-        <div>
-          <h1>{BRAND_NAME}</h1>
-          <p className="subtext">Premium digital retail banking simulator.</p>
-        </div>
-      </div>
+      <div className="brand-mark">H</div>
 
       <div className="topbar-actions">
-        <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? <FiSun size={18} /> : <FiMoon size={18} />} 
-          <span>{darkMode ? 'Light mode' : 'Dark mode'}</span>
+        <button className="theme-toggle-btn" onClick={onOpenSettings} title="Settings">
+          <FiSettings size={16} />
         </button>
-        
+
         {loggedInUser && (
           <div className="profile-block">
             <div className="profile-badge">

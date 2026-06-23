@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { FiDollarSign, FiArrowRight, FiRepeat } from 'react-icons/fi';
+import { 
+    FiRepeat, FiHome, 
+  FiSmartphone, FiInbox, FiCpu, FiGrid, FiEye, FiEyeOff 
+} from 'react-icons/fi';
 
 const API_BASE = '/api/accounts';
 
 function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, clearMessages }) {
+  const [activeTab, setActiveTab] = useState('home'); // 'home' or 'transact'
+  const [showBalance, setShowBalance] = useState(true);
   const [otcAmount, setOtcAmount] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
   const [transferTarget, setTransferTarget] = useState('');
-  
 
   const fetchUpdatedBalance = async () => {
     try {
@@ -54,7 +58,7 @@ function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, cl
         toAccountId: transferTarget,
         amount: parseFloat(transferAmount),
       });
-      setMessage(`Successfully sent funds to clearing layer for destination entity ${transferTarget}.`);
+      setMessage(`Successfully sent funds to ${transferTarget}.`);
       setTransferAmount('');
       setTransferTarget('');
       await fetchUpdatedBalance();
@@ -63,77 +67,109 @@ function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, cl
     }
   };
 
-  const maskPhoneNumber = (p) => p && p.length > 4 ? '*'.repeat(p.length - 4) + p.slice(-4) : p;
   const currencyLabel = loggedInUser?.currency || 'KES';
   const formattedBalance = loggedInUser?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00';
 
   return (
-    <main className="dashboard-grid animate-fade-in">
-      <section className="wallet-panel glass-card">
-        <div className="section-heading compact">
-          <span className="section-icon secondary"><FiDollarSign /></span>
+    <div className="mobile-view-container animate-fade-in">
+      {/* Top Mobile Profile Banner */}
+      <div className="mobile-user-hero">
+        <div className="user-meta">
+          <div className="avatar-placeholder">
+            {loggedInUser.accountHolderName?.charAt(0).toUpperCase()}
+          </div>
           <div>
-            <h2>Liquid Asset Summary</h2>
-            <p>Balances across linked clearance contracts.</p>
+            <span className="greeting-text">Good Afternoon</span>
+            <h2 className="profile-name">{loggedInUser.accountHolderName?.toUpperCase()}</h2>
           </div>
         </div>
-
-        <div className="wallet-balance">
-          <span>Available Balance</span>
-          <strong className="balance-text">{formattedBalance} {currencyLabel}</strong>
-        </div>
-
-        <div className="wallet-details">
-          <div><span>Account Holder</span><strong>{loggedInUser.accountHolderName}</strong></div>
-          <div><span>Account Routing ID</span><strong>{loggedInUser.accountNumber}</strong></div>
-          <div><span>Registered Contact</span><strong>{maskPhoneNumber(loggedInUser.phoneNumber)}</strong></div>
-          <div><span>Base Currency</span><strong>{currencyLabel}</strong></div>
-        </div>
-
-        <button className="button primary sync-btn" onClick={fetchUpdatedBalance}>
-          <FiArrowRight /> Sync Ledger Balance
-        </button>
-      </section>
-
-      <div className="actions-column">
-        <section className="glass-card action-card">
-          <div className="section-heading compact">
-            <span className="section-icon"><FiDollarSign /></span>
-            <div>
-              <h2>Over-The-Counter Engine</h2>
-              <p>Simulate immediate vault deposits or cash clearings.</p>
-            </div>
-          </div>
-          <div className="field-group">
-            <label>Transaction Amount ({currencyLabel})</label>
-            <input type="number" value={otcAmount} onChange={(e) => setOtcAmount(e.target.value)} placeholder="0.00" />
-          </div>
-          <div className="button-row-grid">
-            <button className="button success" onClick={() => handleTransaction('deposit', 'Deposit clearance processed instantly.')}>Deposit Funds</button>
-            <button className="button danger" onClick={() => handleTransaction('withdraw', 'Withdrawal settlement processed.')}>Withdraw Funds</button>
-          </div>
-        </section>
-
-        <section className="glass-card action-card">
-          <div className="section-heading compact">
-            <span className="section-icon warning"><FiRepeat /></span>
-            <div>
-              <h2>Cross-Account Remittance</h2>
-              <p>Route clearing payments instantly to external wallets.</p>
-            </div>
-          </div>
-          <div className="field-group">
-            <label>Recipient Target Routing ID</label>
-            <input type="text" value={transferTarget} onChange={(e) => setTransferTarget(e.target.value)} placeholder="e.g. ACC102" />
-          </div>
-          <div className="field-group">
-            <label>Transfer Value ({currencyLabel})</label>
-            <input type="number" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} placeholder="0.00" />
-          </div>
-          <button className="button warning full-width" onClick={handleTransfer}>Execute Clearing Settlement</button>
-        </section>
       </div>
-    </main>
+
+      {/* Tab Panel Content Routing */}
+      {activeTab === 'home' && (
+        <div className="tab-view animate-fade-in">
+          {/* Balance Passport Card */}
+          <div className="balance-passport">
+            <div className="passport-header">
+              <span>Checking Account ({loggedInUser.accountNumber})</span>
+              <button className="eye-toggle" onClick={() => setShowBalance(!showBalance)}>
+                {showBalance ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+              </button>
+            </div>
+            <strong className="passport-amount">
+              {currencyLabel} {showBalance ? formattedBalance : '******'}
+            </strong>
+            <button className="passport-sync-btn" onClick={fetchUpdatedBalance}>
+              Refresh Wallet Balance
+            </button>
+          </div>
+
+          {/* Feature Highlight Panels */}
+          <h3 className="section-title-label">Quick Actions</h3>
+          <div className="native-action-grid">
+            <div className="action-tile" onClick={() => setActiveTab('transact')}>
+              <div className="tile-icon icon-blue"><FiSmartphone /></div>
+              <span>Send to Mobile</span>
+            </div>
+            <div className="action-tile" onClick={() => setActiveTab('transact')}>
+              <div className="tile-icon icon-green"><FiRepeat /></div>
+              <span>Bank Transfer</span>
+            </div>
+            <div className="action-tile" onClick={() => handleTransaction('deposit', 'Simulated quick cash flow deposited.')}>
+              <div className="tile-icon icon-orange"><FiInbox /></div>
+              <span>Instant Deposit</span>
+            </div>
+            <div className="action-tile" onClick={() => setActiveTab('transact')}>
+              <div className="tile-icon icon-purple"><FiCpu /></div>
+              <span>Pay Utilities</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'transact' && (
+        <div className="tab-view animate-fade-in">
+          {/* Over-The-Counter Cash Desk */}
+          <section className="mobile-card">
+            <h3 className="card-title">Vault Cash Desk</h3>
+            <div className="field-group">
+              <label>Value Amount ({currencyLabel})</label>
+              <input type="number" value={otcAmount} onChange={(e) => setOtcAmount(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className="button-row-grid">
+              <button className="button success" onClick={() => handleTransaction('deposit', 'Deposit processed.')}>Deposit</button>
+              <button className="button danger" onClick={() => handleTransaction('withdraw', 'Withdrawal processed.')}>Withdraw</button>
+            </div>
+          </section>
+
+          {/* Direct Interbank Transfer Form */}
+          <section className="mobile-card" style={{ marginTop: '16px' }}>
+            <h3 className="card-title">Direct Account Transfer</h3>
+            <div className="field-group">
+              <label>Target Account Routing ID</label>
+              <input type="text" value={transferTarget} onChange={(e) => setTransferTarget(e.target.value)} placeholder="e.g. ACC102" />
+            </div>
+            <div className="field-group">
+              <label>Transfer Value ({currencyLabel})</label>
+              <input type="number" value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} placeholder="0.00" />
+            </div>
+            <button className="button warning full-width" onClick={handleTransfer}>Execute Clearing Settlement</button>
+          </section>
+        </div>
+      )}
+
+      {/* Persistent Bottom Mobile Navigation Dock */}
+      <div className="bottom-nav-dock">
+        <button className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
+          <FiHome size={20} />
+          <span>Home</span>
+        </button>
+        <button className={`nav-item ${activeTab === 'transact' ? 'active' : ''}`} onClick={() => setActiveTab('transact')}>
+          <FiGrid size={20} />
+          <span>Transact</span>
+        </button>
+      </div>
+    </div>
   );
 }
 
