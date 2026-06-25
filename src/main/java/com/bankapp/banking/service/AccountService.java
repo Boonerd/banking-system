@@ -134,4 +134,9 @@ public class AccountService {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'createAccount'");
     }
+
+    public Account deposit(String accountId, BigDecimal valueOf) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deposit'");
+    }
 }

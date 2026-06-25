@@ -8,31 +8,35 @@ import { FiCheckCircle, FiAlertTriangle, FiX, FiMoon, FiSun } from 'react-icons/
 import './App.css';
 
 function App() {
-  const [appLoading, setAppLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('SPLASH');
   const [darkMode, setDarkMode] = useState(false);
-  const [currentView, setCurrentView] = useState('LOGIN');
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false); // Controls the sliding side settings drawer
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const clearMessages = () => {
     setMessage('');
     setError('');
   };
 
+  // Human Auto-Timeout Hook for global banners (4 seconds)
   useEffect(() => {
-    // Brief simulated loading period for the app shell
-    const timer = setTimeout(() => setAppLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (appLoading) {
-    return <SplashScreen />;
-  }
+    if (message || error) {
+      const timer = setTimeout(() => {
+        clearMessages();
+      }, 4000); 
+      return () => clearTimeout(timer);
+    }
+  }, [message, error]);
 
   return (
     <div className={`app-shell ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+
+      {/* 1. Clear, Unlocked Full-Screen Splash Overlay Routing */}
+      {currentView === 'SPLASH' && (
+        <SplashScreen onComplete={() => setCurrentView('LOGIN')} />
+      )}
 
       {/* Slide-out Settings Menu Drawer Overlay */}
       <div className={`side-nav-drawer ${menuOpen ? '' : 'hidden'}`}>
@@ -44,7 +48,6 @@ function App() {
         </div>
 
         <div className="nav-menu-list">
-          {/* Functional Theme Toggler Row */}
           <button className="nav-item" onClick={() => setDarkMode(!darkMode)}>
             <span>Display Mode</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -53,7 +56,6 @@ function App() {
             </span>
           </button>
 
-          {/* Secure Placeholder Rows */}
           <button className="nav-item" onClick={() => alert('Security & Session Keys are automatically managed.')}>
             <span>🔒 Security & Keys</span>
           </button>
@@ -64,60 +66,63 @@ function App() {
         </div>
       </div>
 
-      <div className="wide-app-container">
-        <Navbar
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
-          loggedInUser={loggedInUser}
-          setLoggedInUser={setLoggedInUser}
-          setCurrentView={setCurrentView}
-          onOpenSettings={() => setMenuOpen(true)}
-        />
-
-        {message && (
-          <div className="notice success animate-fade-in">
-            <FiCheckCircle size={18} />
-            <span>{message}</span>
-          </div>
-        )}
-
-        {error && (
-          <div className="notice error animate-fade-in">
-            <FiAlertTriangle size={18} />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {currentView === 'LOGIN' && (
-          <LoginView
-            setLoggedInUser={setLoggedInUser}
-            setCurrentView={setCurrentView}
-            setMessage={setMessage}
-            setError={setError}
-            clearMessages={clearMessages}
-          />
-        )}
-
-        {currentView === 'SIGNUP' && (
-          <SignupView
-            setLoggedInUser={setLoggedInUser}
-            setCurrentView={setCurrentView}
-            setMessage={setMessage}
-            setError={setError}
-            clearMessages={clearMessages}
-          />
-        )}
-
-        {currentView === 'DASHBOARD' && loggedInUser && (
-          <DashboardView
+      {/* Only show the full application container structure if the splash is completed */}
+      {currentView !== 'SPLASH' && (
+        <div className="wide-app-container">
+          <Navbar
+            darkMode={darkMode}
+            setDarkMode={setDarkMode}
             loggedInUser={loggedInUser}
             setLoggedInUser={setLoggedInUser}
-            setMessage={setMessage}
-            setError={setError}
-            clearMessages={clearMessages}
+            setCurrentView={setCurrentView}
+            onOpenSettings={() => setMenuOpen(true)}
           />
-        )}
-      </div>
+
+          {message && (
+            <div className="notice success animate-fade-in">
+              <FiCheckCircle size={18} />
+              <span>{message}</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="notice error animate-fade-in">
+              <FiAlertTriangle size={18} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {currentView === 'LOGIN' && (
+            <LoginView
+              setLoggedInUser={setLoggedInUser}
+              setCurrentView={setCurrentView}
+              setMessage={setMessage}
+              setError={setError}
+              clearMessages={clearMessages}
+            />
+          )}
+
+          {currentView === 'SIGNUP' && (
+            <SignupView
+              setLoggedInUser={setLoggedInUser}
+              setCurrentView={setCurrentView}
+              setMessage={setMessage}
+              setError={setError}
+              clearMessages={clearMessages}
+            />
+          )}
+
+          {currentView === 'DASHBOARD' && loggedInUser && (
+            <DashboardView
+              loggedInUser={loggedInUser}
+              setLoggedInUser={setLoggedInUser}
+              setMessage={setMessage}
+              setError={setError}
+              clearMessages={clearMessages}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

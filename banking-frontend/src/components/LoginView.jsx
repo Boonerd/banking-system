@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const API_BASE = '/api/accounts';
+
+
 
 function LoginView({ setLoggedInUser, setCurrentView, setMessage, setError, clearMessages }) {
   const [phone, setPhone] = useState('');
   const [pin, setPIN] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPin, setShowPin] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -61,20 +65,32 @@ function LoginView({ setLoggedInUser, setCurrentView, setMessage, setError, clea
 
           <div className="form-group">
             <label>4-Digit PIN</label>
-            <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPIN(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="••••"
+            <div className="pin-input-wrapper">
+              <input
+                type={showPin ? "text" : "password"}
+                value={pin}
+                onChange={(e) => setPIN(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="••••"
               maxLength={4}
               required
             />
+            <button
+              type="button"
+              className="pin-toggle-btn"
+              onClick={() => setShowPin(!showPin)}
+              tabIndex={-1}
+            >
+              {showPin ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+            </button>
           </div>
+        </div>
+        
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? <span className="btn-spinner"></span> : 'Sign In'}
           </button>
         </form>
+        
 
         <div className="action-links">
           <button className="btn btn-secondary" onClick={() => { setCurrentView('SIGNUP'); clearMessages(); }}>

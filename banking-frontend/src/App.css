@@ -63,7 +63,7 @@
 .splash-wordmark {
   display: flex;
   font-size: 2.1rem;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.5px;
 }
 
@@ -129,11 +129,13 @@
 .wide-app-container {
   width: 100%;
   max-width: 420px; /* Constrains web viewport seamlessly to mobile dimensions */
+  max-height: 100vh;
   background: var(--surface);
   color: var(--text-primary);
-  border-radius: 4px;
+  border-radius: 8px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   transition: background-color 0.25s ease, color 0.25s ease;
@@ -263,7 +265,7 @@
   height: 44px;
   background: #ffffff;
   color: var(--primary-blue);
-  border-radius: 10px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -484,7 +486,7 @@ input:focus, select:focus {
 .wallet-balance {
   padding: 16px;
   background: var(--light-gray-bg);
-  border-radius: 12px;
+  border-radius: 8px;
   border-left: 4px solid var(--primary-blue);
   text-align: left;
 }
@@ -697,7 +699,7 @@ input:focus, select:focus {
 .balance-passport {
   margin: 16px 24px;
   padding: 20px;
-  border-radius: 16px;
+  border-radius: 8px;
   background-image: var(--bg-gradient);
   color: #ffffff;
   box-shadow: 0 8px 24px rgba(0, 89, 177, 0.25);
@@ -739,7 +741,7 @@ input:focus, select:focus {
   font-size: 0.8rem;
   font-weight: 600;
   padding: 8px 14px;
-  border-radius: 20px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -768,7 +770,7 @@ input:focus, select:focus {
 .action-tile {
   background: var(--surface);
   border: 1px solid var(--border-gray);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
@@ -793,13 +795,18 @@ input:focus, select:focus {
 }
 
 .tile-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
+}
+
+.tile-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .icon-blue   { background: rgba(0, 89, 177, 0.12); color: var(--primary-blue); }
@@ -811,7 +818,7 @@ input:focus, select:focus {
 .mobile-card {
   background: var(--surface);
   border: 1px solid var(--border-gray);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 20px;
   margin: 16px 24px 0;
 }
@@ -862,18 +869,16 @@ input:focus, select:focus {
 
 /* Bottom nav dock */
 .bottom-nav-dock {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
   width: 100%;
-  max-width: 420px;
   display: flex;
   justify-content: space-around;
   background: var(--surface);
   border-top: 1px solid var(--border-gray);
   padding: 10px 0 14px;
   z-index: 20;
+  margin-top: auto;
 }
 
 .bottom-nav-dock .nav-item {
@@ -915,4 +920,100 @@ input:focus, select:focus {
   cursor: pointer;
   display: flex;
   align-items: center;
+}
+/* Custom Card Shell Matrix */
+.compact-transact-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+.sheet-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.sheet-header p {
+  font-size: 13px;
+  color: #666666;
+  margin: 0 0 16px 0;
+}
+
+/* Dense Form Alignment Groups */
+.input-compact-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+.input-compact-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+/* Input Fields */
+.slick-select, .slick-amount-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  background-color: #fafafa;
+  color: #333333;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.slick-select:focus, .slick-amount-input:focus {
+  outline: none;
+  border-color: #00838f;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 131, 143, 0.15);
+}
+
+/* Adaptive Button Matrix Rows */
+.action-button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.btn-action:active {
+  transform: scale(0.98);
+}
+
+.btn-deposit {
+  background-color: var(--accent-green);
+  color: #ffffff;
+}
+
+.btn-withdraw {
+  background-color: #e53935;
+  color: #ffffff;
+}
+
+.btn-deposit:hover, .btn-withdraw:hover {
+  filter: brightness(0.92);
 }

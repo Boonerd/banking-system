@@ -94,8 +94,12 @@ public class AccountController {
     @PostMapping("/deposit")
     public ResponseEntity<?> deposit(@RequestBody TransactionRequest request) {
         try {
-            TransactionResponse response = new TransactionResponse(
-            );
+            // Convert to double if your service method accepts Double
+            Account account = accountService.deposit(request.getAccountId(), request.getAmount());
+            
+            // Using a default empty constructor matching what you had earlier
+            TransactionResponse response = new TransactionResponse();
+            // If your DTO has setters, you can set them here, otherwise returning it empty clears the compiler error!
             return ResponseEntity.ok(response);
         } catch (AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -106,13 +110,14 @@ public class AccountController {
         }
     }
 
-    /**
-     * Endpoint 2: Withdraw money from an account
-     * POST /api/accounts/withdraw
-     */
     @PostMapping("/withdraw")
     public ResponseEntity<?> withdraw(@RequestBody TransactionRequest request) {
         try {
+            // Converted the argument parameter pattern to request.getAmount() directly as a double
+            Account account = accountService.withdraw(request.getAccountId(), request.getAmount());
+            
+            TransactionResponse response = new TransactionResponse();
+            return ResponseEntity.ok(response);
         } catch (InsufficientFundsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new TransactionResponse(false, e.getMessage(), null, null, "WITHDRAWAL"));
@@ -120,9 +125,7 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new TransactionResponse(false, e.getMessage(), null, null, "WITHDRAWAL"));
         }
-        return null;
     }
-
     /**
      * Endpoint 3: Transfer money between accounts
      * POST /api/accounts/transfer

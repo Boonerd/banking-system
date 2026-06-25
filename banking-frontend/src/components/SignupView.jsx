@@ -108,7 +108,7 @@ function SignupView({ setCurrentView, setMessage, setError, clearMessages }) {
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? <span className="btn-spinner"></span> : 'Provision New Account'}
+            {loading ? <span className="btn-spinner"></span> : 'Create Account'}
           </button>
         </form>
 

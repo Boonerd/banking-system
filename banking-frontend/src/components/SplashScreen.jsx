@@ -1,23 +1,38 @@
+import { useEffect } from 'react';
+
 const BRAND_NAME = 'Horizon Bank';
 
-function SplashScreen() {
+function SplashScreen({ onComplete }) {
+  // Human Touch: Automatically clear the splash screen after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
+    }, 3000); // 3000ms = 3 seconds
+
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
   return (
-    <div className="splash-screen">
-      <h1 className="splash-wordmark">
-        {BRAND_NAME.split('').map((char, i) => (
-          <span
-            key={i}
-            className="splash-letter"
-            style={{ animationDelay: `${i * 0.05}s` }}
-          >
-            {char === ' ' ? '\u00A0' : char}
-          </span>
-        ))}
-      </h1>
-      <div className="splash-dots">
-        <span></span>
-        <span></span>
-        <span></span>
+    <div className="splash-frame">
+      <div className="splash-content-wrapper">
+        <h1 className="splash-wordmark">
+          {BRAND_NAME.split('').map((char, i) => (
+            <span
+              key={i}
+              className="splash-letter"
+              style={{ animationDelay: `${i * 0.05}s` }}
+            >
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          ))}
+        </h1>
+        <div className="splash-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
     </div>
   );
