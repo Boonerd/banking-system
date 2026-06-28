@@ -95,10 +95,16 @@ public class AccountController {
     public ResponseEntity<?> deposit(@RequestBody TransactionRequest request) {
         try {
             // Convert to double if your service method accepts Double
-            Account account = accountService.deposit(request.getAccountId(), request.getAmount());
+            Account account = accountService.deposit(request.getAccountNumber(), request.getAmount());
             
             // Using a default empty constructor matching what you had earlier
-            TransactionResponse response = new TransactionResponse();
+            TransactionResponse response = new TransactionResponse(
+                true,
+                "Deposit successful",
+                account.getAccountNumber(),
+                account.getBalance().doubleValue(),
+                "DEPOSIT"
+            );
             // If your DTO has setters, you can set them here, otherwise returning it empty clears the compiler error!
             return ResponseEntity.ok(response);
         } catch (AccountNotFoundException e) {
@@ -114,9 +120,15 @@ public class AccountController {
     public ResponseEntity<?> withdraw(@RequestBody TransactionRequest request) {
         try {
             // Converted the argument parameter pattern to request.getAmount() directly as a double
-            Account account = accountService.withdraw(request.getAccountId(), request.getAmount());
+            Account account = accountService.withdraw(request.getAccountNumber(), request.getAmount());
             
-            TransactionResponse response = new TransactionResponse();
+            TransactionResponse response = new TransactionResponse(
+                true,
+                "Withdrawal successful",
+                account.getAccountNumber(),
+                account.getBalance().doubleValue(),
+                "WITHDRAWAL"            
+            );
             return ResponseEntity.ok(response);
         } catch (InsufficientFundsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -159,7 +171,7 @@ public class AccountController {
         try {
             Account account = accountService.getAccount(id);
             BalanceResponse response = new BalanceResponse(
-                account.getId(),
+                account.getAccountNumber(),
                 account.getAccountNumber(),
                 account.getAccountHolderName(),
                 account.getBalance().doubleValue(),
@@ -168,7 +180,7 @@ public class AccountController {
             return ResponseEntity.ok(response);
         } catch (AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new BalanceResponse(id, null, null, null, null));
+                .body(e.getMessage());
         }
     }
 

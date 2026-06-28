@@ -8,10 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BalanceResponse {
-    public BalanceResponse(Long id, String accountNumber2, String accountHolderName2, double doubleValue,
-            Object object) {
-        //TODO Auto-generated constructor stub
-    }
+
     private String accountId;
     private String accountNumber;
     private String accountHolderName;

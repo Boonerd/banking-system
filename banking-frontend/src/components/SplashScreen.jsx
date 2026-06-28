@@ -3,13 +3,12 @@ import { useEffect } from 'react';
 const BRAND_NAME = 'Horizon Bank';
 
 function SplashScreen({ onComplete }) {
-  // Human Touch: Automatically clear the splash screen after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       if (typeof onComplete === 'function') {
         onComplete();
       }
-    }, 3000); // 3000ms = 3 seconds
+    }, 3000); // 3 seconds
 
     return () => clearTimeout(timer);
   }, [onComplete]);

@@ -107,8 +107,25 @@ public class AccountService {
                         "Insufficient funds in source account. Available: " + fromAccount.getBalance() + ", Requested: " + amount
                     );
                 }
-                fromAccount.setBalance(fromAccount.getBalance().subtract(BigDecimal.valueOf(amount)));
+                BigDecimal transferAmount = BigDecimal.valueOf(amount);
+
+                BigDecimal convertedAmount = convertCurrency(
+                    transferAmount,
+                    fromAccount.getCurrency(),
+                    toAccount.getCurrency()
+                );
+
+                // Debit sender in their own currency
+                fromAccount.setBalance(
+                    fromAccount.getBalance().subtract(transferAmount)
+                );
                 fromAccount.setUpdatedAt(LocalDateTime.now());
+
+                // Credit receiver in THEIR currency
+                toAccount.setBalance(
+                    toAccount.getBalance().add(convertedAmount)
+                );
+                toAccount.setUpdatedAt(LocalDateTime.now()); 
 
                 toAccount.setBalance(toAccount.getBalance().add(BigDecimal.valueOf(amount)));
                 toAccount.setUpdatedAt(LocalDateTime.now());
@@ -122,6 +139,48 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
+    private BigDecimal convertCurrency(BigDecimal amount, String fromCurrency, String toCurrency) {
+        if (fromCurrency.equalsIgnoreCase(toCurrency)) {
+            return amount;
+        }
+        // Hard-coded exchange rates (for demo purposes)
+        double rate;
+
+        switch (fromCurrency.toUpperCase() + "_" + toCurrency.toUpperCase()) {
+            case "EUR_USD":
+                rate = 1.17;
+                break;
+
+            case "USD_EUR":
+                rate = 0.85;
+                break;
+
+                case "KES_USD":
+                    rate = 0.0077;
+                    break;
+
+                    case "USD_KES":
+                        rate = 129.87;
+                        break;
+
+                        case "EUR_KES":
+                            rate = 152.00;
+                            break;
+
+                            case "KES_EUR":
+                                rate = 0.0066;
+                                break;
+
+            default:
+                throw new IllegalArgumentException(
+                    "Currency conversion not supported: "
+                    + fromCurrency + " -> " + toCurrency
+                );
+            }
+        return amount.multiply(BigDecimal.valueOf(rate));
+            }
+
+
     private String generateUniqueAccountNumber() {
         String accountNumber;
         do {
@@ -130,13 +189,4 @@ public class AccountService {
         return accountNumber;
     }
 
-    public Account createAccount(String string, double d) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createAccount'");
-    }
-
-    public Account deposit(String accountId, BigDecimal valueOf) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deposit'");
-    }
 }

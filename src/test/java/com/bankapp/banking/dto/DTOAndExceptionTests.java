@@ -18,7 +18,7 @@ class DTOAndExceptionTests {
 
         TransactionRequest request = new TransactionRequest(accountId, amount);
 
-        assertEquals(accountId, request.getAccountId());
+        assertEquals(accountId, request.getAccountNumber());
         assertEquals(amount, request.getAmount());
     }
 
@@ -26,7 +26,7 @@ class DTOAndExceptionTests {
     void testTransactionRequestNoArgConstructor() {
         TransactionRequest request = new TransactionRequest();
 
-        assertNull(request.getAccountId());
+        assertNull(request.getAccountNumber());
         assertNull(request.getAmount());
     }
 
@@ -36,10 +36,10 @@ class DTOAndExceptionTests {
         String accountId = "new-account-456";
         Double amount = 250.0;
 
-        request.setAccountId(accountId);
+        request.setAccountNumber(accountId);
         request.setAmount(amount);
 
-        assertEquals(accountId, request.getAccountId());
+        assertEquals(accountId, request.getAccountNumber());
         assertEquals(amount, request.getAmount());
     }
 
@@ -47,7 +47,7 @@ class DTOAndExceptionTests {
     void testTransactionRequestWithZeroAmount() {
         TransactionRequest request = new TransactionRequest("acc-001", 0.0);
 
-        assertEquals("acc-001", request.getAccountId());
+        assertEquals("acc-001", request.getAccountNumber());
         assertEquals(0.0, request.getAmount());
     }
 
@@ -55,7 +55,7 @@ class DTOAndExceptionTests {
     void testTransactionRequestWithNegativeAmount() {
         TransactionRequest request = new TransactionRequest("acc-001", -100.0);
 
-        assertEquals("acc-001", request.getAccountId());
+        assertEquals("acc-001", request.getAccountNumber());
         assertEquals(-100.0, request.getAmount());
     }
 
@@ -268,7 +268,7 @@ class DTOAndExceptionTests {
 
     @Test
     void testBalanceResponseConstructor() {
-        BalanceResponse response = new BalanceResponse("acc-123", null, null, 1500.0, null);
+        BalanceResponse response = new BalanceResponse();
 
         assertEquals("acc-123", response.getAccountId());
         assertEquals(1500.0, response.getBalance());
@@ -295,7 +295,7 @@ class DTOAndExceptionTests {
 
     @Test
     void testBalanceResponseWithZeroBalance() {
-        BalanceResponse response = new BalanceResponse("zero-balance-acc", null, null, 0.0, null);
+        BalanceResponse response = new BalanceResponse();
 
         assertEquals("zero-balance-acc", response.getAccountId());
         assertEquals(0.0, response.getBalance());
@@ -303,7 +303,7 @@ class DTOAndExceptionTests {
 
     @Test
     void testBalanceResponseWithLargeBalance() {
-        BalanceResponse response = new BalanceResponse("rich-acc", null, null, 99_999_999.99, null);
+        BalanceResponse response = new BalanceResponse();
 
         assertEquals(99_999_999.99, response.getBalance());
     }
@@ -312,7 +312,7 @@ class DTOAndExceptionTests {
     void testBalanceResponseWithNegativeBalance() {
         // Note: Negative balance should not occur in normal operation,
         // but test demonstrates that DTO accepts any value
-        BalanceResponse response = new BalanceResponse("acc", null, null, -100.0, null);
+        BalanceResponse response = new BalanceResponse();
 
         assertEquals(-100.0, response.getBalance());
     }

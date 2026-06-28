@@ -5,7 +5,7 @@ import {
   FiSmartphone, FiInbox, FiCpu, FiGrid, FiEye, FiEyeOff 
 } from 'react-icons/fi';
 
-const API_BASE = '/api/accounts';
+const API_BASE = 'http://localhost:8080/api/accounts';
 
 function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, clearMessages }) {
   const [activeTab, setActiveTab] = useState('home'); 
@@ -15,20 +15,21 @@ function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, cl
   const [transferTarget, setTransferTarget] = useState('');
   const [transactionMethod, setTransactionMethod] = useState('MOBILE_MONEY');
 
-  // FIX: Checks the dedicated balance path by ID instead of hitting /login with a blank PIN
+  // FIX 1: Requests ledger updates using the explicit accountNumber string asset
   const fetchUpdatedBalance = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/${loggedInUser.id}/balance`);
+      const response = await axios.get(`${API_BASE}/${loggedInUser.accountNumber}/balance`);
       setLoggedInUser(prev => ({
         ...prev,
         balance: response.data.balance
       }));
     // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      setError('Unable to sync running balance.');
+      setError('Unable to sync running ledger balance.');
     }
   };
 
+  // FIX 2: Updates transaction payload to bind against accountNum targets to prevent 404/500 errors
   const handleTransaction = async (endpoint, successText) => {
     if (!otcAmount || parseFloat(otcAmount) <= 0) {
       setError('Please enter a valid amount.');
@@ -37,27 +38,32 @@ function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, cl
     clearMessages();
     try {
       await axios.post(`${API_BASE}/${endpoint}`, {
-        accountId: loggedInUser.id, 
-        amount: parseFloat(otcAmount),
-        method: transactionMethod
+        accountNumber: loggedInUser.accountNumber,// Clean swap: id string -> accountNumber
+        amount: parseFloat(otcAmount)
       });
       setMessage(successText);
       setOtcAmount('');
       await fetchUpdatedBalance();
     } catch (err) {
-      setError(err.response?.data || 'Transaction failed.');
+      const fallbackError = err.response?.data?.message || err.response?.data || 'Transaction failed.';
+      setError(typeof fallbackError === 'object' ? JSON.stringify(fallbackError) : fallbackError);
     }
   };
 
+  // FIX 3: Ensures origin verification matches backend expectations via the public account number
   const handleTransfer = async () => {
     if (!transferTarget || !transferAmount || parseFloat(transferAmount) <= 0) {
       setError('Recipient account and a valid amount are required.');
       return;
     }
     clearMessages();
+    console.log("loggedInUser:", loggedInUser);
+    console.log("accountNumber:", loggedInUser?.accountNumber);
+    console.log("Parsed Amount:", parseFloat(otcAmount));
+
     try {
       await axios.post(`${API_BASE}/transfer`, {
-        fromAccountId: loggedInUser.id,
+        fromAccountId: loggedInUser.accountNumber, // Clean swap: id string -> accountNumber
         toAccountId: transferTarget,
         amount: parseFloat(transferAmount),
       });
@@ -181,7 +187,7 @@ function DashboardView({ loggedInUser, setLoggedInUser, setMessage, setError, cl
             
             <div className="input-compact-group">
               <label>Recipient Account Number</label>
-              <input type="text" value={transferTarget} onChange={(e) => setTransferTarget(e.target.value)} placeholder="e.g. 1234567890" className="slick-select" />
+              <input type="text" value={transferTarget} onChange={(e) => setTransferTarget(e.target.value)} placeholder="e.g. ACC179" className="slick-select" />
             </div>
             <div className="input-compact-group">
               <label>Transfer Value ({currencyLabel})</label>

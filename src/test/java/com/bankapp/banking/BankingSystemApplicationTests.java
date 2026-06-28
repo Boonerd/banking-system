@@ -38,8 +38,8 @@ class BankingSystemApplicationTests {
 	void testDeposit() {
 		Account updatedAccount = accountService.deposit(account1Id, 200.0);
 
-		assertEquals(1200.0, updatedAccount.getBalance());
-		assertEquals(1200.0, accountService.getBalance(account1Id));
+		assertEquals(1200.0, Double.valueOf(updatedAccount.getBalance().toString()));
+		assertEquals(1200.0, Double.valueOf(accountService.getBalance(account1Id).toString()));
 	}
 
 	@Test
@@ -61,8 +61,8 @@ class BankingSystemApplicationTests {
 	void testWithdraw() {
 		Account updatedAccount = accountService.withdraw(account1Id, 300.0);
 
-		assertEquals(700.0, updatedAccount.getBalance());
-		assertEquals(700.0, accountService.getBalance(account1Id));
+		assertEquals(700.0, Double.valueOf(updatedAccount.getBalance().toString()));
+		assertEquals(700.0, Double.valueOf(accountService.getBalance(account1Id).toString()));
 	}
 
 	@Test
@@ -166,11 +166,18 @@ class BankingSystemApplicationTests {
 
 	@Test
 	void testAccountCreation() {
-		Account account = accountService.createAccount("Charlie Brown", 750.0);
+		Account account = accountService.createAccount(
+			"Charlie Brown",
+			"charlie@example.com",
+			"0712345678",
+			"1234",
+			java.math.BigDecimal.valueOf(750.0),
+			"KES"
+		);
 
 		assertNotNull(account.getId());
 		assertEquals("Charlie Brown", account.getAccountHolderName());
-		assertEquals(750.0, account.getBalance());
+		assertEquals(java.math.BigDecimal.valueOf(750.0), account.getBalance());
 		assertTrue(account.getAccountNumber().startsWith("ACC-"));
 	}
 }
